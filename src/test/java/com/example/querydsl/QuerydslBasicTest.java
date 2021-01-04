@@ -4,8 +4,11 @@ import static com.example.querydsl.entity.QMember.member;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.querydsl.entity.Member;
+import com.example.querydsl.entity.QMember;
 import com.example.querydsl.entity.Team;
+import com.querydsl.core.QueryResults;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -112,5 +115,31 @@ public class QuerydslBasicTest {
         .fetchOne();
 
     assertThat(search.getUsername()).isEqualTo("member1");
+  }
+
+  @Test
+  void resultFetch() {
+    List<Member> fetch = queryFactory
+        .selectFrom(member)
+        .fetch();
+
+    Member fetchOne = queryFactory
+        .selectFrom(member)
+        .fetchOne();
+
+    Member fetchFirst = queryFactory
+        .selectFrom(member)
+        .fetchFirst();
+
+    QueryResults<Member> fetchResults = queryFactory
+        .selectFrom(member)
+        .fetchResults();   //성능이 중요한 query에서는 total과 count 쿼리 따로 쓰는 게 좋음
+
+    fetchResults.getTotal();
+    List<Member> results = fetchResults.getResults();
+
+    long count = queryFactory
+        .selectFrom(member)
+        .fetchCount();
   }
 }
