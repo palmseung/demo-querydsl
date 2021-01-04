@@ -19,11 +19,16 @@ class QuerydslApplicationTests {
 	@Autowired
 	private EntityManager em;
 
+	@Autowired
+	private MemberRepository memberRepository;
+
 	@Test
 	void contextLoads() {
 		//given
 		Member member = new Member();
-		em.persist(member);
+//		em.persist(member);
+
+		memberRepository.save(member);
 
 		JPAQueryFactory queryFactory = new JPAQueryFactory(em);
 		QMember qMember = new QMember("m");
@@ -35,9 +40,8 @@ class QuerydslApplicationTests {
 		assertThat(fetch).containsExactly(member);
 
 		for (Member m : fetch) {
-			System.out.println("m = " + m);
+			System.out.println(">>>>>>>>>>>>>>> m = " + m);
 		}
 
 	}
-
 }
