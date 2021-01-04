@@ -1,4 +1,4 @@
-package com.example.querydsl;
+package com.example.querydsl.entity;
 
 import com.example.querydsl.entity.Team;
 import javax.persistence.Column;

@@ -1,6 +1,5 @@
 package com.example.querydsl.entity;
 
-import com.example.querydsl.Member;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;

@@ -1,13 +1,12 @@
 package com.example.querydsl;
 
-import static com.example.querydsl.QMember.member;
+import static com.example.querydsl.entity.QMember.member;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.example.querydsl.entity.Member;
 import com.example.querydsl.entity.Team;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,5 +64,53 @@ public class QuerydslBasicTest {
         .fetchOne();
 
     assertThat(findMember.getUsername()).isEqualTo("member1");
+  }
+
+  @Test
+  void search() {
+    Member search = queryFactory
+        .selectFrom(member)
+        .where(member.username.eq("member1").and(member.age.eq(10)))
+        .fetchOne();
+
+    assertThat(search.getUsername()).isEqualTo("member1");
+  }
+
+  @Test
+  void search2() {
+    Member search = queryFactory
+        .selectFrom(member)
+        .where(member.username.eq("member1")
+            .and(member.age.between(10, 30)))
+        .fetchOne();
+
+    assertThat(search.getUsername()).isEqualTo("member1");
+  }
+
+  @Test
+  void search3() {
+    Member search = queryFactory
+        .selectFrom(member)
+        .where(
+            member.username.eq("member1"),
+            member.age.between(10, 30)
+        )
+        .fetchOne();
+
+    assertThat(search.getUsername()).isEqualTo("member1");
+  }
+
+  @Test
+  void search4() {
+    Member search = queryFactory
+        .selectFrom(member)
+        .where(
+            member.username.eq("member1"),
+            member.age.between(10, 30),
+            null // 중간에 null이 들어가면 무시하고 실행 (동적쿼리 할 때 이 기능이 빛을 발함)
+        )
+        .fetchOne();
+
+    assertThat(search.getUsername()).isEqualTo("member1");
   }
 }

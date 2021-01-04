@@ -1,5 +1,6 @@
-package com.example.querydsl;
+package com.example.querydsl.entity;
 
+import com.example.querydsl.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
