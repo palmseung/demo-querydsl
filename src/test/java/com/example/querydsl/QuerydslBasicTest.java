@@ -755,4 +755,41 @@ public class QuerydslBasicTest {
         .where(member.age.gt(18))
         .execute();
   }
+
+  /*
+  H2 DB인 경우, H2Dialect.java 에 등록되어 있는 함수여야 사용 가능
+   */
+  @Test
+  void sqlFunction() {
+    List<String> result = queryFactory
+        .select(Expressions.stringTemplate(
+            "function('replace', {0}, {1}, {2})",
+            member.username, "member", "M"
+        ))
+        .from(member)
+        .fetch();
+
+    for (String s : result) {
+      System.out.println("s = " + s);
+    }
+  }
+
+  /*
+
+   */
+  @Test
+  void sqlFunction2() {
+    List<String> result = queryFactory
+        .select(member.username)
+        .from(member)
+//        .where(member.username.eq(Expressions.stringTemplate(
+//            "function('lower', {0})", member.username
+//        )))
+        .where(member.username.eq(member.username.lower()))
+        .fetch();
+
+    for (String s : result) {
+      System.out.println("s = " + s);
+    }
+  }
 }
