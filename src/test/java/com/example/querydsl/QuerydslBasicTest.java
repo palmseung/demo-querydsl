@@ -501,4 +501,34 @@ public class QuerydslBasicTest {
       System.out.println("s = " + s);
     }
   }
+
+  @Test
+  void simpleProjection() {
+    List<String> result = queryFactory
+        .select(member.username)
+        .from(member)
+        .fetch();
+
+    for (String s : result) {
+      System.out.println("s = " + s);
+    }
+  }
+
+  /*
+   tuple이 repository 레이어에서 쓰이는 것은 상관없지만, service부터는 tuple에 의존적이지 않은 설계가좋다 => dto 로 변경해서 쓰자
+   */
+  @Test
+  void tupleProjection() {
+    List<Tuple> result = queryFactory
+        .select(member.username, member.age)
+        .from(member)
+        .fetch();
+
+    for (Tuple tuple : result) {
+      String username = tuple.get(member.username);
+      Integer age = tuple.get(member.age);
+      System.out.println(username);
+      System.out.println(age);
+    }
+  }
 }
