@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.example.querydsl.entity.Member;
 import com.example.querydsl.entity.MemberDto;
 import com.example.querydsl.entity.QMember;
+import com.example.querydsl.entity.QMemberDto;
 import com.example.querydsl.entity.Team;
 import com.example.querydsl.entity.UserDto;
 import com.querydsl.core.QueryResults;
@@ -635,5 +636,22 @@ public class QuerydslBasicTest {
       System.out.println("userDto = " + userDto);
     }
   }
+
+  /*
+  dto 생성자에 @QueryProjection 붙인 후 -> compileQuerydsl 클릭  : 컵파일 단계에서 dto에 관련된 에러 잡을 수 있음
+  => dto가 querydsl에 의존성을 갖게 된다
+   */
+  @Test
+  void findDtoByQueryProjection() {
+    List<MemberDto> result = queryFactory
+        .select(new QMemberDto(member.username, member.age))
+        .from(member)
+        .fetch();
+
+    for (MemberDto memberDto : result) {
+      System.out.println("memberDto = " + memberDto);
+    }
+  }
+
 
 }
