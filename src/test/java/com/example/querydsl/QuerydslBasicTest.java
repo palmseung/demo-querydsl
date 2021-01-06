@@ -712,4 +712,47 @@ public class QuerydslBasicTest {
   private BooleanExpression ageEq(Integer ageCond) {
     return ageCond != null ? member.age.eq(ageCond) : null;
   }
+
+  /*
+  벌크연산은 영속성 컨텍스트 무시하고 DB에서 값을 바로 바꿔버린다.
+  (트랜잭션 커밋 전에 해당 값을 조회하면 영속성 컨텍스트 값이 항상 우선시 되어서 data consistency 꺠진다)
+  => 그러므로 벌크연산 후에는 반드시 영속성 컨텍스트 초기화 할 것
+   */
+  @Test
+  void bulkUpdate() {
+    long count = queryFactory
+        .update(member)
+        .set(member.username, "비회원")
+        .where(member.age.lt(28))
+        .execute();
+
+    em.flush();
+    em.clear();
+
+    System.out.println("count = " + count);
+  }
+
+  @Test
+  void bulkAdd() {
+    long count = queryFactory
+        .update(member)
+        .set(member.age, member.age.add(1))
+        .execute();
+  }
+
+  @Test
+  void bulkMultiply() {
+    long count = queryFactory
+        .update(member)
+        .set(member.age, member.age.multiply(2))
+        .execute();
+  }
+
+  @Test
+  void bulkDelete() {
+    long count = queryFactory
+        .delete(member)
+        .where(member.age.gt(18))
+        .execute();
+  }
 }
