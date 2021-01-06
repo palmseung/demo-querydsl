@@ -5,10 +5,14 @@ import static com.example.querydsl.entity.QTeam.team;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.querydsl.entity.Member;
+import com.example.querydsl.entity.MemberDto;
 import com.example.querydsl.entity.QMember;
 import com.example.querydsl.entity.Team;
+import com.example.querydsl.entity.UserDto;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.ExpressionUtils;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
@@ -531,4 +535,105 @@ public class QuerydslBasicTest {
       System.out.println(age);
     }
   }
+
+  @Test
+  void findDtoByJPQL() {
+    List<MemberDto> resultList = em.createQuery(
+        "select new com.example.querydsl.entity.MemberDto(m.username, m.age) from Member m",
+        MemberDto.class).getResultList();
+
+    for (MemberDto memberDto : resultList) {
+      System.out.println("memberDto = " + memberDto);
+    }
+  }
+
+  @Test
+  void findDtoByQuerydslUsingSetter() {
+    List<MemberDto> result = queryFactory
+        .select(
+            Projections.bean(MemberDto.class, member.username, member.age)
+        )
+        .from(member)
+        .fetch();
+
+    for (MemberDto memberDto : result) {
+      System.out.println("memberDto = " + memberDto);
+    }
+  }
+
+  /*
+  field로 생성하는 건 getter, setter 없어도 됨
+   */
+  @Test
+  void findDtoByQuerydslUsingFields() {
+    List<MemberDto> result = queryFactory
+        .select(
+            Projections.fields(MemberDto.class, member.username, member.age)
+        )
+        .from(member)
+        .fetch();
+
+    for (MemberDto memberDto : result) {
+      System.out.println("memberDto = " + memberDto);
+    }
+  }
+
+
+  /*
+  생성자 이용은 타입 순서 잘 맞춰야 함
+   */
+  @Test
+  void findDtoByQuerydslUsingConstructor() {
+    List<MemberDto> result = queryFactory
+        .select(
+            Projections.constructor(MemberDto.class, member.username, member.age)
+        )
+        .from(member)
+        .fetch();
+
+    for (MemberDto memberDto : result) {
+      System.out.println("memberDto = " + memberDto);
+    }
+  }
+
+  /*
+  DTO 필드명과 엔티티 필드명이 다를 땐 as 사용
+   */
+  @Test
+  void findUserDto() {
+    List<UserDto> result = queryFactory
+        .select(
+            Projections.fields(UserDto.class,
+                member.username.as("name"),
+                member.age)
+        )
+        .from(member)
+        .fetch();
+
+    for (UserDto userDto : result) {
+      System.out.println("userDto = " + userDto);
+    }
+  }
+
+  @Test
+  void findUserDtoWithSubQuery() {
+    QMember memberSub = new QMember("memberSub");
+
+    List<UserDto> result = queryFactory
+        .select(
+            Projections.fields(UserDto.class,
+                member.username.as("name"),
+                ExpressionUtils.as(
+                    JPAExpressions.select(memberSub.age.max()).from(memberSub), "age"
+                )
+            )
+        )
+        .from(member)
+        .fetch();
+
+    for (UserDto userDto : result) {
+      System.out.println("userDto = " + userDto);
+    }
+  }
+
 }
