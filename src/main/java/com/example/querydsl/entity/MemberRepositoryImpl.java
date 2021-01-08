@@ -88,7 +88,7 @@ public class MemberRepositoryImpl implements MemberSearchCustom {
             ageLoe(condition.getAgeLoe())
         );
 
-    return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);    //이렇게 하면, 굳이 countQuery 안 날려도 되면 안 날린다.=> 최적화
+    return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount); //countQuery 실행 시점은 여기 => 이렇게 하면, 굳이 countQuery 안 날려도 되면 안 날린다.=> 최적화
 //    return new PageImpl<>(content, pageable, total);
   }
 
