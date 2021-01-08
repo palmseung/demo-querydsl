@@ -19,7 +19,6 @@ import lombok.ToString;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@ToString(of = {"id", "username", "age"})
 public class Member {
 
   @Id
@@ -28,6 +27,15 @@ public class Member {
   private Long id;
   private String username;
   private Integer age;
+
+  @Override
+  public String toString() {
+    return "Member{" +
+        "id=" + id +
+        ", username='" + username + '\'' +
+        ", age=" + age +
+        '}';
+  }
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "team_id")
