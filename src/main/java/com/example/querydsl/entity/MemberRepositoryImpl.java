@@ -6,12 +6,14 @@ import static org.springframework.util.StringUtils.hasText;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.support.PageableExecutionUtils;
 
 public class MemberRepositoryImpl implements MemberSearchCustom {
 
@@ -75,9 +77,19 @@ public class MemberRepositoryImpl implements MemberSearchCustom {
     List<MemberTeamDto> content = getMemberTeamDtos(condition,
         pageable);
 
-    long total = getTotal(condition);
+    JPAQuery<Member> countQuery = queryFactory   //전체 count 조회쿼리를 최적화하고 싶을 때 별도 쿼리 작성
+        .select(member)
+        .from(member)
+        .leftJoin(member.team, team)
+        .where(
+            usernameEq(condition.getUsername()),
+            teamNameEq(condition.getTeamName()),
+            ageGoe(condition.getAgeGoe()),
+            ageLoe(condition.getAgeLoe())
+        );
 
-    return new PageImpl<>(content, pageable, total);
+    return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchCount);    //이렇게 하면, 굳이 countQuery 안 날려도 되면 안 날린다.=> 최적화
+//    return new PageImpl<>(content, pageable, total);
   }
 
   private List<MemberTeamDto> getMemberTeamDtos(MemberSearchCondition condition,
@@ -102,21 +114,6 @@ public class MemberRepositoryImpl implements MemberSearchCustom {
         .limit(pageable.getPageSize())
         .fetch();
     return content;
-  }
-
-  private long getTotal(MemberSearchCondition condition) {
-    long total = queryFactory   //전체 count 조회쿼리를 최적화하고 싶을 때 별도 쿼리 작성
-        .select(member)
-        .from(member)
-        .leftJoin(member.team, team)
-        .where(
-            usernameEq(condition.getUsername()),
-            teamNameEq(condition.getTeamName()),
-            ageGoe(condition.getAgeGoe()),
-            ageLoe(condition.getAgeLoe())
-        )
-        .fetchCount();
-    return total;
   }
 
   private BooleanExpression usernameEq(String username) {
