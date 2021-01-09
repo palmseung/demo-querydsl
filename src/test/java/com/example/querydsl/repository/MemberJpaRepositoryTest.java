@@ -104,4 +104,5 @@ class MemberJpaRepositoryTest {
         .extracting("username")
         .containsExactly("member3", "member4");
   }
+
 }
